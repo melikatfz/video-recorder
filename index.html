@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <link rel="stylesheet" href="style.css"> -->
+    <style>
+        body{
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+}
+#container{
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+}
+#container2{
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    background-color: #0000004a;
+}
+#container3{
+    width: calc(100vw - 40px);
+    height: calc(100vh - 40px);
+    background-color: white;
+    margin-top: 20px;
+    margin-left: 20px;
+}
+.frc{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: center;
+}
+.aic{
+    align-content: center;
+}
+#record{
+    width: 600px;
+    height: 375px;
+    object-fit: cover;
+}
+#playVideo{
+    width: 600px;
+    height: 600px;
+    object-fit: cover;
+    border: 1px solid black;
+    margin-top: 20px;
+}
+#videoContainer{
+    width: 600px;
+    height: 375px;
+    border: 1px solid black;
+}
+.h100{
+    height: 100%;
+}
+#message{
+    text-align: center;
+}
+.fcc{
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: center;
+}
+.frs{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-around;
+}
+.mt20{
+    margin-top: 10px;
+}
+.dsn{
+    display: none;
+}
+#timer{
+    position: absolute;
+    margin-top: -25px;
+    margin-left: 5px;
+    color: white;
+}
+.fcsb{
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+}
+.frfe{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+}
+#mul{
+    font-size: 35px;
+    cursor: pointer;
+    margin-right: 5px;
+}
+.btn{
+    padding: 8px;
+    background-color: white;
+    border: 1px solid gray;
+    cursor: pointer;
+}
+@media (max-width:620px){
+    #record{
+        width: calc(100vw - 20px);
+        height: calc(62.5vw - 12.5px);
+        object-fit: cover;
+    }
+    #videoContainer{
+        width: calc(100vw - 20px);
+        height: calc(62.5vw - 12.5px);
+    }
+}
+    </style>
+    <title>Document</title>
+</head>
+<body>
+    <div id="container" class="frc aic pa">
+        <div class="fcc mt20">
+            <div id="videoContainer">
+                <video id="record" class="dsn" autoplay muted></video>
+                <div class="fcc h100" id="message">
+                    <div id="message">please open your camera!</div>
+                </div>
+                <div id="timer">00:00</div>
+            </div>
+            <div class="btnBox frs mt20">
+                <button id="openWebcam" class="btn">open camera</button>
+                <button id="start" class="btn" disabled>start</button>
+                <button id="stop" class="btn" disabled>stop</button>
+                <!-- <button id="playBtn" disabled>play video</button> -->
+                <!-- <button id="downloadContent" disabled> -->
+                    <a id="download" download>download</a>
+                <!-- </button> -->
+            </div>
+        </div>
+    </div>
+    <div id="container2" class="dsn">
+        <div id="container3" class="fcsb aic">
+            <div class="frfe">
+                <div id="mul">&#215;</div>
+            </div>
+            <div class="frc" id="playVidC">
+                <video id="playVideo"></video>
+            </div>
+            <div></div>
+        </div>
+    </div>
+    <!-- <script src="script.js"></script> -->
+    <script>
+        const startRecord = document.getElementById('start');
+const stopRecord  = document.getElementById('stop');
+const downloadBtn = document.getElementById('download');
+const record   = document.getElementById('record');
+const openWebcam = document.getElementById('openWebcam');
+const message = document.getElementById('message');
+const timer  = document.getElementById('timer');
+const mul = document.getElementById('mul');
+const container2 = document.getElementById('container2');
+const playVidC = document.getElementById('playVidC');
+
+mul.addEventListener('click',()=>{
+    container2.classList.add('dsn');
+})
+
+let cameraStream = null;
+let mediaRecorder = null;
+let blobsRecorded = [];
+
+var isPlay = false;
+
+openWebcam.addEventListener('click',async (e)=>{
+    startRecord.disabled = false;
+    openWebcam.disabled = true;
+    // if(e.target.textContent === 'open camera'){
+    //     cameraStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+	//     record.srcObject = cameraStream;
+
+    //     openWebcam.innerHTML = 'close camera';
+        
+    //     message.classList.add('dsn');
+    //     record.classList.remove('dsn');
+    // }else{
+    //     // navigator.mediaDevices.getUserMedia({audio:true,video:true})
+    //     // .then(stream=>{
+    //     //     stream.getTracks().forEach(track=>{
+    //     //         track.stop();
+    //     //     })
+    //     // })
+    //     localStream.getVideoTracks()[0].stop();
+    //     localStream.getAudioTracks()[0].stop()
+
+    //     record.srcObject=null;
+    //     openWebcam.innerHTML = 'open camera';
+
+    //     message.classList.remove('dsn');
+    //     record.classList.add('dsn');
+    // }
+
+    cameraStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+    record.srcObject = cameraStream;
+
+    openWebcam.innerHTML = 'close camera';
+    
+    message.classList.add('dsn');
+    record.classList.remove('dsn');
+})
+
+startRecord.addEventListener('click', function() {
+    startRecord.disabled = true;
+    stopRecord.disabled = false;
+
+    mediaRecorder = new MediaRecorder(cameraStream, { mimeType: 'video/webm' });
+    
+    var SECONDS = 0;
+    var interVal = setInterval(()=>{
+        timer.innerHTML = new Date(SECONDS * 1000).toISOString().slice(14, 19);
+        ++SECONDS;
+    },1*1000)
+
+    mediaRecorder.addEventListener('dataavailable', function(e) {
+		blobsRecorded.push(e.data);
+    });
+
+    mediaRecorder.addEventListener('stop', function() {
+    	let videoLocal = URL.createObjectURL(new Blob(blobsRecorded, { type: 'video/webm' }));
+        downloadBtn.href = videoLocal;
+        timer.innerHTML='00:00'
+        
+        clearInterval(interVal);
+
+        videoStream = videoLocal;
+
+        stopRecord.disabled = true;
+        startRecord.disabled = false;
+        
+    });
+
+    mediaRecorder.start(1000);
+});
+
+stopRecord.addEventListener('click', function() {
+	mediaRecorder.stop();
+});
+    </script>
+</body>
+</html>
